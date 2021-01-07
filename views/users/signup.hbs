@@ -1,0 +1,33 @@
+<section class="signup-section">
+    <div class="container">
+        <div class="row px-auto">
+            <div class="form my-3">
+                <form action="/signup" id="form" method="POST" class="px-5">
+                    <h4 class="py-1">Instagram</h4>
+                    <h6 class="text-muted">Sign up to see photos and videos from your friends.</h6>
+                    <a href="" class="bg-primary text-light my-2 py-1"><i class="fab fa-facebook-square"></i> Log in
+                        with Facsbook</a>
+                    <h5 class="midil my-1">or</h5>
+                    <div class="inputs">
+                        <label for="">Email or Phon</label>
+                        <input type="text" name="MobilorEmail" id="">
+                        <label for="">Full Name</label>
+                        <input type="text" name="fullname" id="">
+                            <label for="">User Name
+                            {{#if userErr}}
+                            <span  style="color: red;"> Used username</span>
+                            {{/if}}
+                            </label>
+                        <input type="text" name="username" id="">
+                        <label for="">Password</label>
+                        <input type="password" name="password" id="">
+                    </div>
+                    <div class="sub">
+                        <a href="/login">already have accound</a>
+                        <button type="submit" class="btn btn-primary my-3">Signup</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

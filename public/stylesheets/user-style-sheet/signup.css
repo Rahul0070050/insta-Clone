@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
+/* signup */
+.signup-section{
+    background-color: #fafafa;
+}
+.row{
+    display: flex;
+    justify-content: center;
+}
+#form{
+    background-color: white;
+    box-shadow: 0 0 1px 0 black;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 400px;
+}
+#form h4{
+    font-size: 1.5rem;
+    text-align: center;
+    font-family: 'Lobster', cursive;
+}
+#form h4{
+    font-weight: 600;
+}
+#form a{
+    position: relative;
+    border-radius: 5px;
+}
+#form .midil{
+    position: relative;
+}
+#form .midil::after{
+    content: '';
+    position: absolute;
+    height: 0.5px;
+    width: 130px;
+    background-color: black;
+    top: 14px;
+    left: 0;
+}
+#form .midil::before{
+    content: '';
+    position: absolute;
+    height: 0.5px;
+    width: 130px;
+    background-color: black;
+    top: 14px;
+    right: 0;
+}
+.inputs{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-sta;
+}

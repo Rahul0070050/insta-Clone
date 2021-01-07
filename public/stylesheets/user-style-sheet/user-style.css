@@ -1,0 +1,330 @@
+@import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.user-navbar-full-body{
+    display: flex;
+    justify-content: space-between;
+    background-color: #ffffff;
+    padding-left: 10rem;
+    padding-right:10rem;
+    border-bottom: .3px solid rgb(109, 109, 109);
+}
+.inst-heading{
+    font-family: 'Lobster', cursive;
+    font-size: 1.5rem;
+}
+.search{
+    margin-left: 20%;
+}
+.links{
+    position: relative;
+}
+.links ul li a i{
+    font-size: 1.5rem;
+}
+.links ul li a img{
+    height: 25px;
+    width: 25px;
+    border-radius: 50%;
+}
+.userOptions{
+    position: absolute;
+    width: 200px;
+    right: 0;
+    top: 50px;
+    background-color: white;
+    box-shadow: 0 0 1px 0 black;
+    border-radius: 5px;
+}
+.userOptions .top-option{
+    display: flex;
+    flex-direction: column;
+}
+.userOptions .top-option hr{
+    margin: 0;
+    padding: 0;
+}
+.userOptions a{
+    text-decoration: none;
+    color: black;
+}
+.hiden{
+    display: none;
+}
+/* #fafafa -bg*/ 
+/* #dc3171 -status*/
+/* user home */
+.user-home-page{
+    padding: 0px 5.5rem;
+}
+.status-container::-webkit-scrollbar{
+    display: none;
+}
+.status-container{
+    box-shadow: 0 0 1px 0;
+    overflow: auto;
+    background-color: #eeeeee;
+    width: 570px !important;
+    display: flex;
+}
+.status-container .status{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.status-container .status .imgd{
+    border: 3px solid #dc3171;
+    border-radius: 50%;
+}
+.status-container .status p{
+    margin: 0;
+    padding: 0;
+}
+.status-container .status img{
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    background-position: center;
+    background-size: cover;
+}
+.details-user{
+    position: relative;
+}
+.user-card{
+    box-shadow: 0 0 1px 0;
+    background-color: #eeeeee;
+}
+.user-card{
+    width: 570px !important;
+}
+.user-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.user-header .name-img{
+    display: flex;
+    align-items: center;
+}
+.user-header .name-img img{
+    height: 35px;
+    margin-right: 5px;
+    width: 35px;
+    border-radius: 50%;
+}
+.user-card .user-post{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.user-card .user-post img{
+    width: 100%;
+}
+.users-opretion{
+    display: flex;
+    justify-content: space-between;
+}
+.like h5{
+    margin: 0;
+    padding: 0;
+}
+.description h5{
+    margin: 0;
+    padding: 0;
+}
+.comments h6{
+    margin-top: 3px;
+}
+.comments-input-feeld{
+    display: flex;
+    align-items: center;
+}
+.comments-input-feeld input{
+    background-color:  #eeeeee;
+    width: 100%;
+    outline: none;
+    border: none;
+}
+.comments-input-feeld a:hover{
+    text-decoration: none;
+}
+
+.mutchel-friends{
+    position: fixed;
+}
+.mutchel-friends .user{
+    display: flex;
+    align-items: center;
+}
+.mutchel-friends .user h6,
+.mutchel-friends .user p{
+    margin: 0;
+    padding: 0;
+}
+.mutchel-friends .user img{
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+}
+.suggetions{
+    width: 330px;
+}
+.suggetions .suggetions-for-you{
+    display: flex;
+    justify-content: space-between;
+}
+
+.user-details{
+    width: 265px;
+    display: flex;
+    justify-content: space-between;
+}
+.sugetions-list{
+    display: flex;
+    align-items: center;
+}
+.sugetions-list img{
+    height: 25px;
+    width: 25px;
+    border-radius: 50%;
+}
+.sugetions-list p{
+    margin: 0;
+    padding: 0;
+}
+.msugetion-users{
+    width: 340px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* user-opretion */
+.user-full-details{
+    height: 150px;
+}
+.user-profile-photo{
+    margin-right: 5rem;
+}
+.user-information{
+    display: flex;
+    align-items: center;
+}
+.user-profile-photo img{
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+}
+.user-profile-name{
+    display: flex;
+    align-items: center;
+}
+.user-profile-name a{
+    background-color: rgb(233, 233, 233);
+    padding: 5px;
+    margin-left: 5px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+.user-post-options{
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+}
+.user-post-options a,
+.user-score a{
+    color: black;
+    text-decoration: none;
+}
+.container{
+    position: relative !important;
+}
+
+.making-post{
+    height: 400px !important;
+    width: 600px !important;
+    background-color: white !important;
+    top: 45px;
+    z-index: 1 !important;
+    border-radius: 15px;
+    position: absolute !important;
+    box-shadow: 0 0 1px 0 black;
+}
+.closs h3{
+    position: absolute;
+    right: 0;
+    top: 0;
+    cursor: pointer;
+
+}
+.title{
+    display: flex;
+    justify-content: center;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+.making-post .form{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+
+/*================================*/
+
+
+#post-view-imgs-rop{
+    position: relative;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+.row #post{
+    overflow: hidden;
+    position: relative;
+    height: 200px;
+    width: 200px;
+}
+.row #post img{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+#post-descreption{
+    width: 100%;
+    background-color: black;
+    position: absolute;
+    display: flex;
+    flex-wrap: wrap;
+    bottom: 0;
+    color: white;
+}
+#post-descreption h6{
+    position: relative;
+    bottom: -50px;
+}
+.row #post button{
+    margin: 0;
+    padding: 0;
+}
+.row #post i{
+    position: relative;
+    top: -25px;
+    left: -25px;
+    border-radius: 2px;
+    background-color: yellow;
+    padding: 5px;
+    display: inline-block;
+}
+#post-view-imgs-rop #post:hover .img-trash{
+    top: 0;
+    left: 0;
+    transition: all ease 0.5s;
+}
+#post-view-imgs-rop #post:hover #post-descreption h6{
+    bottom: 0px !important;
+    transition: all ease 1s !important;
+}
