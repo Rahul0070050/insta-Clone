@@ -48,7 +48,8 @@ module.exports = {
             }
         })
     },
-    userPostUploading: (UserPost, userId) => {
+    userPostUploading: (UserPost, userId, userName) => {
+        console.log(userName);
         return new Promise(async (resolve, reject) => {
             let post = await db.get().collection(collections.USER_POST).findOne({ "post.userId": ObjectId(userId) })
             if (post) {
@@ -57,7 +58,8 @@ module.exports = {
                         $push: {
                             "post.userPost":
                             {
-                                time:new Date(),
+                                time: new Date(),
+                                name: userName,
                                 img: UserPost.postImg,
                                 discription: UserPost.postDescription,
                             }
@@ -71,7 +73,8 @@ module.exports = {
                     userId: ObjectId(userId),
                     userPost: [
                         {
-                            time:new Date(),
+                            time: new Date(),
+                            name: userName,
                             img: UserPost.postImg,
                             discription: UserPost.postDescription
                         }
@@ -90,8 +93,8 @@ module.exports = {
         })
     },
     uesrPostCound: (userId) => {
-        return new Promise(async(resolve, reject) => {
-            let userPost =await db.get().collection(collections.USER_POST).findOne({ "post.userId": ObjectId(userId) })
+        return new Promise(async (resolve, reject) => {
+            let userPost = await db.get().collection(collections.USER_POST).findOne({ "post.userId": ObjectId(userId) })
             if (userPost) {
                 db.get().collection(collections.USER_POST).aggregate([
                     {
@@ -117,21 +120,60 @@ module.exports = {
             })
         })
     },
-    getFriendsPostToUserHomePage:(userId) => {
-        return new Promise(async(resolve, reject) => {
-            let userFriendsPost =await db.get().collection(collections.USER_FRIENDS_POST).findOne({ "post.userId": ObjectId(userId) })
+    getFriendsPostToUserHomePage: (userId) => {
+        return new Promise(async (resolve, reject) => {
+            let userFriendsPost = await db.get().collection(collections.USER_FRIENDS_POST).findOne({ "post.userId": ObjectId(userId) })
             if (userFriendsPost) {
-                
+
             } else {
                 db.get().collection(collections.USER_POST).aggregate([
                     {
-                        $group:{_id:{userId:"$post.userId",post:"$post.userPost"}}
+                        $project:
+                        {
+                            _id: 0,
+                            userId: "$post.userId",
+                            "post.userPost": 1,
+                        }
+                    },
+                    {
+                        $unwind: "$post.userPost"
+                    },
+                    {
+                        $project:
+                        {
+                            post: "$post.userPost",
+                            name: "$post.name",
+                            userId: 1
+                        }
+                    },
+                    {
+                        $sort: { "post.time": -1 }
                     }
-                ]).next((err, data) => {
+                ]).toArray((err, data) => {
                     if (err) throw err
+                    console.log(data);
                     resolve(data)
                 })
             }
+        })
+    },
+    findUserPostCound: (userId) => {
+        return new Promise(async (resolve, reject) => {
+            db.get().collection(collections.USER_POST).aggregate([
+                {
+                    $match: { "post.userId": ObjectId(userId) }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        userId: "$post.userId",
+                        post: "$post.userPost"
+                    }
+                }
+            ]).toArray((err, data) => {
+                if (err) throw err
+                resolve(data)
+            })
         })
     }
 }

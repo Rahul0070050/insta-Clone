@@ -15,12 +15,12 @@
                         </div>
                         <div class="user-score  d-flex mt-2">
                             <h5 class="mr-3"><span class="text-muted" id="post-cound">{{respomse}}</span> Post</h5>
-                            <a href="">
+                            <h5 href="">
                                 <h5 class="ml-3 mr-1"><span class="text-muted">0</span> Followers</h5>
-                            </a>
-                            <a href="">
+                            </h5>
+                            <h5>
                                 <h5 class="ml-4"><span class="text-muted">0</span> Following</h5>
-                            </a>
+                            </h5>
                         </div>
                         <button class="btn btn-success mt-3 ml-auto" id="show-post">Make a Post</button>
                         <button class="btn btn-success mt-3 ml-auto" id="show-ig">Make a IGTV</button>
@@ -85,7 +85,7 @@
             {{#each post}}
             <div class="m-3 my-3">
                 <div id="post">
-                    <img src="/{{../user.MobilorEmail}}/post/{{this.img}}.jpg"
+                    <img src="/userPost/post/{{this.img}}.jpg"
                         alt="">
                     <a  href="/deletPost/{{this.img}}" class="post-delet-button"><i class="fas fa-trash img-trash"></i></a>
                     <div id="post-descreption">

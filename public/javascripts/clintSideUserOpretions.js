@@ -19,16 +19,32 @@ const igTexeria = document.querySelector(".ig-control");
 const submitPost = document.querySelector("#posts");
 const submitIg = document.querySelector("#ig");
 
-userHomeOptionsDiv.addEventListener("click",() => {
+const findUser = document.getElementById("show-user");
+const hideUser = document.getElementById("hide-user");
+const showUser = document.getElementById("found-user-section");
+
+
+// =======================================
+
+findUser.addEventListener("click",()=>{
+    showUser.classList.toggle("hiden")
+})
+
+hideUser.addEventListener("click",()=>{
+    showUser.classList.toggle("hiden")
+})
+// =============================================
+
+userHomeOptionsDiv.addEventListener("click", () => {
     userHomeOptions.classList.toggle("hiden");
 });
 
-postOpenButton.addEventListener("click",() => {
+postOpenButton.addEventListener("click", () => {
     postTexeria.value = ""
     postFileSpace.value = ""
     postForm.classList.toggle("hiden")
 });
-igOpenButton.addEventListener("click",() => {
+igOpenButton.addEventListener("click", () => {
     igTexeria.value = ""
     IgFileSpace.value = ""
     igForm.classList.toggle("hiden")
@@ -41,14 +57,11 @@ postClossButton.addEventListener("click", () => {
 igClossButton.addEventListener("click", () => {
     igForm.classList.toggle("hiden");
 });
-submitPost.addEventListener("click",() => {
+submitPost.addEventListener("click", () => {
     postForm.classList.toggle("hiden");
 
 })
-submitIg.addEventListener("click",() => {
+submitIg.addEventListener("click", () => {
     igForm.classList.toggle("hiden");
 
 })
-
-
-

@@ -51,9 +51,6 @@
     text-decoration: none;
     color: black;
 }
-.hiden{
-    display: none;
-}
 /* #fafafa -bg*/ 
 /* #dc3171 -status*/
 /* user home */
@@ -114,6 +111,14 @@
     margin-right: 5px;
     width: 35px;
     border-radius: 50%;
+}
+.user-header .name-img a{
+    font-size: large;
+    font-weight: 600;
+    color: black;
+}
+.user-header .name-img a:hover{
+    text-decoration: none;
 }
 .user-card .user-post{
     display: flex;
@@ -203,6 +208,7 @@
 }
 
 /* user-opretion */
+
 .user-full-details{
     height: 150px;
 }
@@ -327,4 +333,18 @@
 #post-view-imgs-rop #post:hover #post-descreption h6{
     bottom: 0px !important;
     transition: all ease 1s !important;
+}
+/*==========================*/
+
+/*==========================*/
+
+/*===============***************==================*/
+.hiden{
+    display: none;
+}
+.red{
+    color: #dc3171;
+}
+.black{
+    color: black;
 }

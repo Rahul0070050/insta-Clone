@@ -18,12 +18,11 @@ let login = (req, res, next) => {
     res.render("users/login", { login: req.session.logedin })
   }
 }
+
 router.get('/', login, function (req, res, next) {
-  console.log("1321232132123");
   userOpretion.getFriendsPostToUserHomePage(req.session.user._id).then((response) => {
-    console.log(response._id);
+    res.render('users/users-home', { user: req.session.user, login: req.session.logedin, allPost: response });
   })
-  res.render('users/users-home', { user: req.session.user, login: req.session.logedin });
 });
 router.get("/messeges", login, (req, res) => {
 
@@ -59,7 +58,6 @@ router.post("/login", (req, res) => {
       res.redirect("/login")
     }
   })
-
 })
 
 router.get("/logout", (req, res) => {
@@ -80,7 +78,7 @@ router.get("/userpanul", login, (req, res) => {
 })
 
 router.post("/user-post", (req, res) => {
-  let postingpath = `./postingUser/${req.session.user.MobilorEmail}`
+  let postingpath = `./postingUser/userPost`
   let imgLocation = uuidv4() + "";
   // user post derectory
   var img = req.files.postImg
@@ -95,10 +93,9 @@ router.post("/user-post", (req, res) => {
       if (err) throw err
       img.mv(`${postingpath}/post/${imgLocation}.jpg`)
     })
-
   }
   req.body.postImg = imgLocation
-  userOpretion.userPostUploading(req.body, req.session.user._id).then(() => {
+  userOpretion.userPostUploading(req.body, req.session.user._id, req.session.user.username).then(() => {
     res.redirect("/userpanul")
   })
 })
@@ -120,6 +117,17 @@ router.get("/deletPost/:deletItem", (req, res) => {
   // console.log(deletItem.slice(2,-5))
   userOpretion.deletUserPOst(deletItem, req.session.user._id).then((respomse) => {
     res.redirect("/userpanul")
+  })
+})
+router.get("/show-user/:id",login, (req, res) => {
+  console.log(req.params.id);
+  userOpretion.findUserPostCound(req.params.id).then((respomse) => {
+    postCount = respomse[0].post
+    console.log(postCount);
+    // userId = respomse[0].userId
+    // console.log(userId);
+    res.render("users/findUser", { user: req.session.user, login: req.session.logedin })
+    // res.status(200).send({ userId: respomse[0].userId, userPostCount: respomse[0].post.length, userPost: respomse[0].post })
   })
 })
 
