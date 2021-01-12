@@ -126,9 +126,9 @@ router.get("/show-user/:id",login, (req, res) => {
     console.log(postCount);
     // userId = respomse[0].userId
     // console.log(userId);
-    res.render("users/findUser", { user: req.session.user, login: req.session.logedin })
     // res.status(200).send({ userId: respomse[0].userId, userPostCount: respomse[0].post.length, userPost: respomse[0].post })
   })
+  res.render("users/userpanul")
 })
 
 
