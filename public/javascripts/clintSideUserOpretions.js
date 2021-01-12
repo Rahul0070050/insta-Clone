@@ -19,20 +19,7 @@ const igTexeria = document.querySelector(".ig-control");
 const submitPost = document.querySelector("#posts");
 const submitIg = document.querySelector("#ig");
 
-const findUser = document.getElementById("show-user");
-const hideUser = document.getElementById("hide-user");
-const showUser = document.getElementById("found-user-section");
 
-
-// =======================================
-
-findUser.addEventListener("click",()=>{
-    showUser.classList.toggle("hiden")
-})
-
-hideUser.addEventListener("click",()=>{
-    showUser.classList.toggle("hiden")
-})
 // =============================================
 
 userHomeOptionsDiv.addEventListener("click", () => {
