@@ -7,6 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 var fs = require("fs")
 var path = require("path");
 const Db = require('mongodb/lib/db');
+const { json } = require('express');
 
 /* GET home page. */
 // checking the user is logedin
@@ -67,69 +68,120 @@ router.get("/logout", (req, res) => {
 
 router.get("/userpanul", login, (req, res) => {
   userOpretion.uesrPostCound(req.session.user._id).then((respomse) => {
-    if (respomse) {
-      let posts = respomse.post.userPost.length + ""
-      let userPosts = respomse.post.userPost
-      res.render("users/userpanul", { login: req.session.logedin, user: req.session.user, respomse: posts, post: userPosts })
-    } else {
-      res.render("users/userpanul", { login: req.session.logedin, user: req.session.user })
-    }
+    res.render("users/userpanul",{
+      user:req.session.user,
+      login: req.session.logedin,
+      userId: respomse.userId,
+      fullname:respomse.fullname,
+      userName: respomse.username,
+      emailId:respomse.MobilorEmail,
+      friend: respomse.friend,
+      followersCound: respomse.followers.length,
+      followingCound: respomse.following.length,
+      allPost: respomse.postData,
+      allPostCound: respomse.postData.length
+    })
   })
 })
 
 router.post("/user-post", (req, res) => {
+  // console.log(req.files.img);
+  // console.log(req.body.description);
+  let post = {}
   let postingpath = `./postingUser/userPost`
-  let imgLocation = uuidv4() + "";
+  post.imgLocation = uuidv4() + "";
   // user post derectory
-  var img = req.files.postImg
-
-
+  var img = req.files.img
   if (fs.existsSync(postingpath)) {
-    img.mv(`${postingpath}/post/${imgLocation}.jpg`)
+    img.mv(`${postingpath}/post/${post.imgLocation}.jpg`)
 
   } else {
-
     fs.mkdir(postingpath + "/post", { recursive: true }, (err) => {
       if (err) throw err
-      img.mv(`${postingpath}/post/${imgLocation}.jpg`)
+      img.mv(`${postingpath}/post/${post.imgLocation}.jpg`)
     })
   }
-  req.body.postImg = imgLocation
-  userOpretion.userPostUploading(req.body, req.session.user._id, req.session.user.username).then(() => {
-    res.redirect("/userpanul")
+  req.body.postImg = post.imgLocation
+  userOpretion.userPostUploading(req.body, req.session.user._id, req.session.user.username).then((response) => {
+    console.log(response);
+    res.send(response).status(200)
   })
 })
 
 router.post("/user-ig-post", (req, res) => {
-  userOpretion.postIgtvPost(req.body, req.session.user._id).then(() => {
-    res.redirect("/userpanul")
-  })
+  // userOpretion.postIgtvPost(req.body, req.session.user._id).then(() => {
+    console.log(req.files);
+    // res.redirect("/userpanul")
+  // })
 })
 
 router.post("/userPostCound", (req, res) => {
   userOpretion.uesrPostCound(req.session.user._id).then((respomse) => {
-    let posts = respomse.post.userPost.length
-    res.send(posts + "")
+    console.log(respomse.post);
+    let posts = respomse.post
+    if (posts) {
+      let posts = respomse.post.userPost.length
+      res.send(posts + "")
+    }
   })
 })
 router.get("/deletPost/:deletItem", (req, res) => {
   let deletItem = req.params.deletItem
   // console.log(deletItem.slice(2,-5))
   userOpretion.deletUserPOst(deletItem, req.session.user._id).then((respomse) => {
+    var path = `postingUser/userPost/post/${deletItem}.jpg`
+    fs.unlink(path,(err) => {
+      if(err) throw err
+      // console.log("suess");
+    })
     res.redirect("/userpanul")
   })
 })
-router.get("/show-user/:id",login, (req, res) => {
-  console.log(req.params.id);
-  userOpretion.findUserPostCound(req.params.id).then((respomse) => {
-    postCount = respomse[0].post
-    console.log(postCount);
-    // userId = respomse[0].userId
-    // console.log(userId);
-    // res.status(200).send({ userId: respomse[0].userId, userPostCount: respomse[0].post.length, userPost: respomse[0].post })
+
+router.get("/selectedUser",(req,res) => {
+  userOpretion.foundUserData(req.session.finduserId,req.session.user._id).then((respomse) => {
+    res.render("users/findUser",
+    {
+      user:req.session.user,
+      login: req.session.logedin,
+      userId: respomse.userId,
+      fullname:respomse.fullname,
+      userName: respomse.username,
+      emailId:respomse.MobilorEmail,
+      friend: respomse.friend,
+      followersCound: respomse.followers.length,
+      followingCound: respomse.following.length,
+      allPost: respomse.postData,
+      allPostCound: respomse.postData.length
+    })
+    // console.log(respomse);
   })
-  res.render("users/userpanul")
 })
+router.get("/show-user/:id", login, (req, res) => {
+  req.session.finduserId = req.params.id
+  if (req.session.finduserId == req.session.user._id) {
+    res.redirect("/userpanul")
+  }else{
+    res.redirect("/selectedUser")
+  }
+})
+
+
+router.post("/addFriend", (req, res) => {
+  console.log(req.body.foundUser);
+  userOpretion.addFriend(req.body.foundUser, req.session.user._id).then((respomse) => {
+    // console.log(respomse);
+    res.send(respomse)
+  })
+})
+router.post("/deleteUser",(req,res) => {
+  console.log(req.body);
+  userOpretion.unfollow(req.body.userId,req.session.user._id).then((respomse) => {
+    res.send(respomse)
+  })
+})
+
+
 
 
 

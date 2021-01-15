@@ -2,15 +2,31 @@
 // const
 // const
 // const
-// const
+
+const { response } = require("express")
 
 
-// getProfile = (userId) => {
-//     // xhr.open("GET", "/getProfile/" + userId, true)
-//     fetch("/getProfile/" + userId).then(data => data.json()).then((data) => {
-//         alert(data.userPost[0].name);
-//     }).catch((err) => {
-//         console.log(err);
+
+// foundUserData = (userId) => {
+//     alert(userId)
+//     fetch("/foundUserData",{
+//         method: "POST",
+//         headers: {
+//             'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({
+//             foundUserId:userId
+//         })
 //     })
-//         // console.log(data);
 // }
+
+
+
+
+
+// fetch("/addFriend" + userId).then(data => data.json()).then((data) => {
+//     alert(data.userPost[0].name);
+// }).catch((err) => {
+//     console.log(err);
+// })
+//     // console.log(data);

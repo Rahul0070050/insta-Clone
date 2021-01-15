@@ -7,6 +7,8 @@ const { resolve } = require('path');
 
 module.exports = {
     usserSignup: (userData) => {
+        userData.following = []
+        userData.followers = []
         return new Promise(async (resolve, reject) => {
             userData.password = await bcrupt.hash(userData.password, 10)
             db.get().collection(collections.USER_COLLECTION).insertOne(userData).then((data) => {
@@ -49,7 +51,6 @@ module.exports = {
         })
     },
     userPostUploading: (UserPost, userId, userName) => {
-        console.log(userName);
         return new Promise(async (resolve, reject) => {
             let post = await db.get().collection(collections.USER_POST).findOne({ "post.userId": ObjectId(userId) })
             if (post) {
@@ -61,13 +62,12 @@ module.exports = {
                                 time: new Date(),
                                 name: userName,
                                 img: UserPost.postImg,
-                                discription: UserPost.postDescription,
+                                discription: UserPost.description,
+                                comments: []
                             }
                         }
                     }
-                ).then(() => {
-                    resolve()
-                })
+                )
             } else {
                 let post = {
                     userId: ObjectId(userId),
@@ -76,38 +76,82 @@ module.exports = {
                             time: new Date(),
                             name: userName,
                             img: UserPost.postImg,
-                            discription: UserPost.postDescription
+                            discription: UserPost.description,
+                            comments: []
                         }
                     ]
                 }
-                db.get().collection(collections.USER_POST).insertOne({ post }).then((respomse) => {
-                    resolve()
-                })
+                db.get().collection(collections.USER_POST).insertOne({ post })
             }
-        })
-    },
-    postIgtvPost: (userData, userId) => {
-        return new Promise((req, res) => {
-            console.log(userData, userId);
-            let igPost = db.get().collection(collections.USSER_IG_POST)
+            db.get().collection(collections.USER_POST).aggregate([
+                {
+                    $match: { "post.userId": ObjectId(userId) }
+                },
+                {
+                    $project:{
+                        _id:0,
+                        post:"$post.userPost"
+                    }
+                }
+            ]).next((err, data) => {
+                if (err) throw err
+                // console.log(data);
+                resolve(data)
+            })
         })
     },
     uesrPostCound: (userId) => {
+        let foundUserAllData = {}
         return new Promise(async (resolve, reject) => {
-            let userPost = await db.get().collection(collections.USER_POST).findOne({ "post.userId": ObjectId(userId) })
-            if (userPost) {
-                db.get().collection(collections.USER_POST).aggregate([
-                    {
-                        $match: { "post.userId": ObjectId(userId) }
+            db.get().collection(collections.USER_COLLECTION).aggregate([
+                {
+                    $match: { _id: ObjectId(userId) }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        MobilorEmail: 1,
+                        fullname: 1,
+                        username: 1,
+                        following: 1,
+                        followers: 1
                     }
-                ]).next((err, data) => {
-                    if (err) throw err
-                    resolve(data)
-                })
-            } else {
-                resolve(false)
-            }
+                }
+            ]).next((err, data) => {
+                if (err) throw err
+                foundUserAllData.MobilorEmail = data.MobilorEmail,
+                    foundUserAllData.fullname = data.fullname,
+                    foundUserAllData.username = data.username,
+                    foundUserAllData.following = data.following,
+                    foundUserAllData.followers = data.followers,
+                    foundUserAllData.userId = data._id
+            })
+            db.get().collection(collections.USER_POST).aggregate([
+                {
+                    $match: { "post.userId": ObjectId(userId) }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        post: 1,
+                    }
+                },
+                {
+                    $unwind: "$post.userPost"
+                },
+                {
+                    $project: {
+                        userId: "$post.userId",
+                        post: "$post.userPost"
+                    }
+                }
+            ]).toArray((err, data) => {
+                if (err) throw err
+                foundUserAllData.postData = data
+                resolve(foundUserAllData)
+            })
         })
+
     },
     deletUserPOst: (deletItemIdentifire, userId) => {
         return new Promise((resolve, reject) => {
@@ -122,9 +166,9 @@ module.exports = {
     },
     getFriendsPostToUserHomePage: (userId) => {
         return new Promise(async (resolve, reject) => {
-            let userFriendsPost = await db.get().collection(collections.USER_FRIENDS_POST).findOne({ "post.userId": ObjectId(userId) })
+            let userFriendsPost = await db.get().collection(collections.USER_FRIENDS_POST).findOne({ "post.userId": ObjectId(userId) }) // if user have friends 
             if (userFriendsPost) {
-
+                // get friends post and display here
             } else {
                 db.get().collection(collections.USER_POST).aggregate([
                     {
@@ -151,29 +195,139 @@ module.exports = {
                     }
                 ]).toArray((err, data) => {
                     if (err) throw err
-                    console.log(data);
                     resolve(data)
                 })
             }
         })
     },
-    findUserPostCound: (userId) => {
-        return new Promise(async (resolve, reject) => {
-            db.get().collection(collections.USER_POST).aggregate([
+    foundUserData: (foundUser, userId) => {
+        let foundUserAllData = {}
+        return new Promise((resolve, reject) => {
+            db.get().collection(collections.USER_COLLECTION).aggregate([
                 {
-                    $match: { "post.userId": ObjectId(userId) }
+                    $match: { _id: ObjectId(foundUser) }
                 },
                 {
                     $project: {
                         _id: 0,
+                        "AllReadyFriend": {
+                            $in: [userId, "$followers"]
+                        }
+                    }
+                }
+            ]).next((err, data) => {
+                if (err) throw err
+                foundUserAllData.friend = data.AllReadyFriend
+                // console.log(data.AllReadyFriend);
+            })
+            db.get().collection(collections.USER_COLLECTION).aggregate([
+                {
+                    $match: { _id: ObjectId(foundUser) }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        MobilorEmail: 1,
+                        fullname: 1,
+                        username: 1,
+                        following: 1,
+                        followers: 1
+                    }
+                }
+            ]).next((err, data) => {
+                if (err) throw err
+                foundUserAllData.MobilorEmail = data.MobilorEmail,
+                    foundUserAllData.fullname = data.fullname,
+                    foundUserAllData.username = data.username,
+                    foundUserAllData.following = data.following,
+                    foundUserAllData.followers = data.followers,
+                    foundUserAllData.userId = data._id
+            })
+            db.get().collection(collections.USER_POST).aggregate([
+                {
+                    $match: { "post.userId": ObjectId(foundUser) }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        post: 1,
+                    }
+                },
+                {
+                    $unwind: "$post.userPost"
+                },
+                {
+                    $project: {
                         userId: "$post.userId",
                         post: "$post.userPost"
                     }
                 }
             ]).toArray((err, data) => {
                 if (err) throw err
-                resolve(data)
+                foundUserAllData.postData = data
+                resolve(foundUserAllData)
             })
         })
-    }
+    },
+    addFriend: (foundUserId, userId) => {
+        let respons = {}
+        return new Promise(async (resolve, reject) => {
+            db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(userId) }, {
+                $push: {
+                    following: foundUserId
+                }
+            })
+            db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(foundUserId) }, {
+                $push: {
+                    followers: userId
+                }
+            })
+            db.get().collection(collections.USER_COLLECTION).aggregate([
+                {
+                    $match: { _id: ObjectId(foundUserId) }
+                },
+                {
+                    $project: {
+                        "followers": 1
+                    }
+                }
+            ]).next((err, data) => {
+                if (err) throw err
+                respons.foundUserFolloversCound = data.followers.length
+                // console.log(respons.foundUserFolloversCound);
+                resolve(respons)
+            })
+        })
+    },
+    unfollow: (UnfollowUserId, userId) => {
+        let respons = {}
+        return new Promise((resolve, reject) => {
+            db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(userId) }, {
+                $pull: {
+                    following: UnfollowUserId
+                }
+            })
+            db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(UnfollowUserId) }, {
+                $pull: {
+                    followers: userId
+                }
+            })
+            db.get().collection(collections.USER_COLLECTION).aggregate([
+                {
+                    $match: { _id: ObjectId(userId) }
+                },
+                {
+                    $project: {
+                        "followers": 1
+                    }
+                }
+            ]).next((err, data) => {
+                if (err) throw err
+                respons.foundUserFolloversCound = data.followers.length
+                // console.log(respons.foundUserFolloversCound);
+                resolve(respons)
+            })
+        })
+    },
+    // postIgtvPost:()
 }

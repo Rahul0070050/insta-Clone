@@ -226,7 +226,11 @@
 }
 .user-profile-name{
     display: flex;
-    align-items: center;
+    text-align: left;
+}
+.user-profile-name h4, h6{
+    margin: 0;
+    padding: 0;
 }
 .user-profile-name a{
     background-color: rgb(233, 233, 233);
