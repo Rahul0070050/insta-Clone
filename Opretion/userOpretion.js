@@ -159,17 +159,49 @@ module.exports = {
             db.get().collection(collections.USER_POST).update({ "post.userId": ObjectId(userId) }, {
                 //mongoDB removing a Object from Array using "$pull"
                 $pull: { "post.userPost": { "img": deletItemIdentifire } }
-            }).then((respomse) => {
-                resolve()
+            })
+            db.get().collection(collections.USER_POST).aggregate([
+                {
+                    $match: { "post.userId": ObjectId(userId) }
+                },
+                {
+                    $project:{
+                        _id:0,
+                        post:"$post.userPost"
+                    }
+                }
+            ]).next((err, data) => {
+                if (err) throw err
+                // console.log(data);
+                resolve(data)
             })
         })
     },
     getFriendsPostToUserHomePage: (userId) => {
+        let response = {}
         return new Promise(async (resolve, reject) => {
             let userFriendsPost = await db.get().collection(collections.USER_FRIENDS_POST).findOne({ "post.userId": ObjectId(userId) }) // if user have friends 
             if (userFriendsPost) {
                 // get friends post and display here
             } else {
+                db.get().collection(collections.USER_COLLECTION).aggregate([
+                    {
+                        $match:{_id:{$ne:ObjectId(userId)}}
+                    },
+                    {
+                        $project:{
+                            _id:1,
+                            // allUsers:{$ne:["$_id",ObjectId(userId)]},
+                            username:1
+                        }
+                    },
+                    {
+                        $limit:4
+                    }
+                ]).toArray((err,data) => {
+                    if(err) throw err
+                    response.allUsers = data
+                })
                 db.get().collection(collections.USER_POST).aggregate([
                     {
                         $project:
@@ -195,7 +227,10 @@ module.exports = {
                     }
                 ]).toArray((err, data) => {
                     if (err) throw err
-                    resolve(data)
+                    response.data = data
+                    if(response.data && response.allUsers){
+                        resolve(response)
+                    }
                 })
             }
         })

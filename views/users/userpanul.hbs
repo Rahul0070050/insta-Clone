@@ -91,8 +91,8 @@
             <div class="m-3 my-3">
                 <div id="post">
                     <img src="/userPost/post/{{this.post.img}}.jpg" alt="">
-                    <a href="/deletPost/{{this.post.img}}" class="post-delet-button"><i
-                            class="fas fa-trash img-trash"></i></a>
+                    <button onclick="post_delet('{{this.post.img}}')" class="post-delet-button"><i
+                            class="fas fa-trash img-trash"></i></button>
                     <div id="post-descreption">
                         <h6>{{this.post.discription}}</h6>
                     </div>
@@ -122,13 +122,14 @@
             .then(data => {
                 let allPost = data.post
                 let posts = "";
+                document.querySelector("#post-cound").innerHTML = allPost.length
                 for (var i = 0; i <= allPost.length; i++) {
                     posts +=
                         `<div class="m-3 my-3">
                             <div id="post">
                                 <img src="/userPost/post/${allPost[i].img}.jpg" alt="">
-                                <a href="/deletPost/${allPost[i].img}" class="post-delet-button"><i
-                                        class="fas fa-trash img-trash"></i></a>
+                                <button onclick="post_delet('${allPost[i].img}')" class="post-delet-button"><i
+                                        class="fas fa-trash img-trash"></i></button>
                                 <div id="post-descreption">
                                     <h6>${allPost[i].discription}</h6>
                                 </div>
@@ -140,13 +141,42 @@
             .catch(err => {
                 console.log(err)
             })
-        //$.ajax({
-        //    url: '/user-ig-post', // which url you want to go
-        //    type: 'post',
-        //    success: (response) => {
-        //        alert(response)
-        //        document.getElementById("post-cound").innerHTML = response
-        //    }
-        //})
+    }
+
+
+    post_delet = (postId) => {
+        const formData = new FormData()
+        formData.append('postId', postId)
+        fetch("/post_delet", {
+            method: "post",
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                let allPost = data.post
+                let posts = "";
+                document.querySelector("#post-cound").innerHTML = allPost.length
+                if (allPost.length == 0) {
+                    document.getElementById("post-view-imgs-rop").innerHTML = ""
+                } else {
+                    for (var i = 0; i <= allPost.length; i++) {
+                        posts +=
+                            `<div class="m-3 my-3">
+                            <div id="post">
+                                <img src="/userPost/post/${allPost[i].img}.jpg" alt="">
+                                <button onclick="post_delet('${allPost[i].img}')" class="post-delet-button"><i
+                                        class="fas fa-trash img-trash"></i></button>
+                                <div id="post-descreption">
+                                    <h6>${allPost[i].discription}</h6>
+                                </div>
+                            </div>
+                        </div>`
+                        document.getElementById("post-view-imgs-rop").innerHTML = posts
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err)
+            })
     }
 </script>

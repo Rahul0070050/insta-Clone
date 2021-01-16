@@ -22,7 +22,8 @@ let login = (req, res, next) => {
 
 router.get('/', login, function (req, res, next) {
   userOpretion.getFriendsPostToUserHomePage(req.session.user._id).then((response) => {
-    res.render('users/users-home', { user: req.session.user, login: req.session.logedin, allPost: response });
+    res.render('users/users-home', { user: req.session.user, login: req.session.logedin, allPost: response.data, allUsers:response.allUsers });
+    console.log(response);
   })
 });
 router.get("/messeges", login, (req, res) => {
@@ -103,7 +104,6 @@ router.post("/user-post", (req, res) => {
   }
   req.body.postImg = post.imgLocation
   userOpretion.userPostUploading(req.body, req.session.user._id, req.session.user.username).then((response) => {
-    console.log(response);
     res.send(response).status(200)
   })
 })
@@ -125,16 +125,16 @@ router.post("/userPostCound", (req, res) => {
     }
   })
 })
-router.get("/deletPost/:deletItem", (req, res) => {
-  let deletItem = req.params.deletItem
-  // console.log(deletItem.slice(2,-5))
+router.post("/post_delet", (req, res) => {
+  let deletItem = req.body.postId
+  console.log(deletItem)
   userOpretion.deletUserPOst(deletItem, req.session.user._id).then((respomse) => {
     var path = `postingUser/userPost/post/${deletItem}.jpg`
     fs.unlink(path,(err) => {
       if(err) throw err
-      // console.log("suess");
+      console.log(respomse);
+      res.send(respomse).status(200)
     })
-    res.redirect("/userpanul")
   })
 })
 
