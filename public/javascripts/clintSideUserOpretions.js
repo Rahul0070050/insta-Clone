@@ -20,6 +20,8 @@ const submitPost = document.querySelector("#posts");
 const submitIg = document.querySelector("#ig");
 
 
+
+
 // =============================================
 
 userHomeOptionsDiv.addEventListener("click", () => {
@@ -50,5 +52,6 @@ submitPost.addEventListener("click", () => {
 })
 submitIg.addEventListener("click", () => {
     igForm.classList.toggle("hiden");
-
 })
+
+

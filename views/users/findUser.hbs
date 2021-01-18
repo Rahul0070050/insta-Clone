@@ -76,7 +76,6 @@
 <script>
 
     addFriend = (userId) => {
-        var cound;
         fetch("/addFriend", {
             method: "POST",
             headers: {
@@ -88,11 +87,11 @@
         })
             .then(response => response.json())
             .then(data => {
-                document.querySelector("#found-User-Followers").innerHTML = data.foundUserFolloversCound
+                document.querySelector("#found-User-Followers").innerHTML = data.length
             })
         document.querySelector(".follow-buttons").innerHTML = `
-                <button onclick="removeFriend('{{userId}}')"class="btn btn-danger mt-1 mr-2 ml-auto py-1 px-4" id="show-ig">Unfollow</button>
-                <button onclick="removeFriend('{{userId}}')" class="btn btn-success mt-1  ml-auto py-1 px-4"id="show-ig">Message</button>
+                <button onclick="removeFriend('${userId}')"class="btn btn-danger mt-1 mr-2 ml-auto py-1 px-4" id="show-ig">Unfollow</button>
+                <button onclick="message('${userId}')" class="btn btn-success mt-1  ml-auto py-1 px-4"id="show-ig">Message</button>
                 `
     }
 
@@ -109,10 +108,13 @@
         })
             .then(response => response.json())
             .then(data => {
-                document.querySelector("#found-User-Followers").innerHTML = data.foundUserFolloversCound - 1
+                if (data.foundUserFolloversCound == 0) {
+
+                }
+                    document.querySelector("#found-User-Followers").innerHTML = data.length
             })
         document.querySelector(".follow-buttons").innerHTML = `
-        <button onclick="addFriend('{{userId}}')"class="btn btn-success mt-1 mr-2 ml-auto py-1 px-4">Follow</button>
+        <button onclick="addFriend('${userId}')"class="btn btn-success mt-1 mr-2 ml-auto py-1 px-4">Follow</button>
         `
     }
 </script>

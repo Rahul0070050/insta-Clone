@@ -68,7 +68,9 @@
                             alt="">
                         <div class="user-details ml-3">
                             <div class="user-loged">
-                                <a href="/userpanul"><h6>{{user.fullname}}</h6></a>
+                                <a href="/userpanul">
+                                    <h6>{{user.fullname}}</h6>
+                                </a>
                                 <p class="text-muted">{{user.username}}</p>
                             </div>
                             <a href="">Switch</a>
@@ -86,9 +88,11 @@
                             <div class="msugetion-users">
                                 <div class="mutul-friends ml-3">
                                     <a href="/show-user/{{this._id}}">{{this.username}}</a>
-                                    <p>status</p>
+                                    <p>{{this.fullname}}</p>
                                 </div>
-                                <a href="">Follow</a>
+                                <span id="{{this._id}}">
+                                    <a style="color: #007bff;" onclick="addFriendHomeScren('{{this._id}}')">Follow</a>
+                                </span>
                             </div>
                         </div>
                         {{/each}}
@@ -98,3 +102,49 @@
         </div>
     </div>
 </section>
+
+
+<script>
+
+    addFriendHomeScren = (userId) => {
+        var cound;
+        fetch("/addFriend", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                foundUser: userId
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                
+            })
+        document.getElementById(userId).innerHTML = `
+                <a style="color: #007bff;" onclick="removeFriendFromHome('${userId}')" >Unfollow</a>
+                `
+    }
+
+    removeFriendFromHome = (userId) => {
+        fetch("/deleteUser", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userId: userId
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.foundUserFolloversCound == 0) {
+                }
+            })
+        document.getElementById(userId).innerHTML = `
+        <a style="color: #007bff;" onclick="addFriendHomeScren('${userId}')" mt-1 mr-2 ml-auto py-1 px-4">Follow</a>
+        `
+    }
+
+
+</script>

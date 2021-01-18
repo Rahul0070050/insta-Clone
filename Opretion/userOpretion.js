@@ -19,7 +19,6 @@ module.exports = {
     getUserName: (userName) => {
         return new Promise(async (resolve, reject) => {
             db.get().collection(collections.USER_COLLECTION).findOne({ username: userName }).then((response) => {
-                console.log('1232321');
                 if (response) {
                     resolve(response, status = true)
                 } else {
@@ -39,7 +38,6 @@ module.exports = {
                         response.status = true
                         resolve(response)
                     } else {
-                        console.log("0");
                         response.status = false
                         resolve(response)
                     }
@@ -88,14 +86,13 @@ module.exports = {
                     $match: { "post.userId": ObjectId(userId) }
                 },
                 {
-                    $project:{
-                        _id:0,
-                        post:"$post.userPost"
+                    $project: {
+                        _id: 0,
+                        post: "$post.userPost"
                     }
                 }
             ]).next((err, data) => {
                 if (err) throw err
-                // console.log(data);
                 resolve(data)
             })
         })
@@ -165,14 +162,13 @@ module.exports = {
                     $match: { "post.userId": ObjectId(userId) }
                 },
                 {
-                    $project:{
-                        _id:0,
-                        post:"$post.userPost"
+                    $project: {
+                        _id: 0,
+                        post: "$post.userPost"
                     }
                 }
             ]).next((err, data) => {
                 if (err) throw err
-                // console.log(data);
                 resolve(data)
             })
         })
@@ -180,59 +176,140 @@ module.exports = {
     getFriendsPostToUserHomePage: (userId) => {
         let response = {}
         return new Promise(async (resolve, reject) => {
-            let userFriendsPost = await db.get().collection(collections.USER_FRIENDS_POST).findOne({ "post.userId": ObjectId(userId) }) // if user have friends 
-            if (userFriendsPost) {
-                // get friends post and display here
-            } else {
-                db.get().collection(collections.USER_COLLECTION).aggregate([
-                    {
-                        $match:{_id:{$ne:ObjectId(userId)}}
-                    },
-                    {
-                        $project:{
-                            _id:1,
-                            // allUsers:{$ne:["$_id",ObjectId(userId)]},
-                            username:1
+            // let userFriendsPost = await db.get().collection(collections.USER_FRIENDS_POST).findOne({ "post.userId": ObjectId(userId) }) // if user have friends 
+            db.get().collection(collections.USER_COLLECTION).aggregate([
+                {
+                    $match:{_id:ObjectId(userId)}
+                },
+                {
+                    $project:{
+                        _id:0,
+                        following:{
+                            $size:"$following"
                         }
-                    },
-                    {
-                        $limit:4
                     }
-                ]).toArray((err,data) => {
-                    if(err) throw err
-                    response.allUsers = data
-                })
-                db.get().collection(collections.USER_POST).aggregate([
-                    {
-                        $project:
+                }
+            ]).next((err,data) => {
+                if(err) throw err
+                // console.log(data);
+                response.friendsCound = data.following
+                // response.status = true
+
+                if(response.friendsCound == 123456789){ // problam bigins from heir
+                    response.status = false
+                }
+
+                if (response.status) {
+
+                    // db.get().collection(collections.USER_COLLECTION).aggregate([
+                    //     {
+                    //         $match: { _id: { $ne: ObjectId(userId) } }
+                    //     },
+                    //     {   // {{-- who doesn't have your Id. you not following that's user  - }} -finding and showing- the user
+                    //         $match: { followers: { $ne: ObjectId(userId) } }
+                    //     },
+                    //     {
+                    //         $project: {
+                    //             _id: 1,
+                    //             username: 1,
+                    //             fullname: 1
+                    //         }
+                    //     },
+                    //     {
+                    //         $limit: 4
+                    //     }
+                    // ]).toArray((err, data) => {
+                    //     if (err) throw err
+                    //     //storing you not followed users
+                    //     response.allUsers = data
+                    // })
+
+                    // db.get().collection(collections.USER_COLLECTION).aggregate([
+                    //     {
+                    //         $match:{_id:ObjectId(userId)}
+                    //     },
+                    //     {
+                    //         $project:{
+                    //             _id:0,
+                    //             following:1
+                    //         }
+                    //     }
+                    // ]).next((err,data) => {
+                    //     if(err) throw err
+                    //     console.log(data.following);
+                    //     response.following = data.following
+                        
+                    //     db.get().collection(collections.USER_POST).aggregate([
+                    //         {
+                    //             $unwind:response.following
+                    //         }
+                    //     ]).toArray((err,data) => {
+                    //         if(err) throw err
+                    //         console.log(data);
+                    //     })
+                    // })
+
+                    
+
+                } else {
+                    console.log(response.status);
+                    db.get().collection(collections.USER_COLLECTION).aggregate([
                         {
-                            _id: 0,
-                            userId: "$post.userId",
-                            "post.userPost": 1,
-                        }
-                    },
-                    {
-                        $unwind: "$post.userPost"
-                    },
-                    {
-                        $project:
+                            $match: { _id: { $ne: ObjectId(userId) } }
+                        },
+                        {   // {{-- who doesn't have your Id. you not following that's user  - }} -finding and showing- the user
+                            $match: { followers: { $ne: ObjectId(userId) } }
+                        },
                         {
-                            post: "$post.userPost",
-                            name: "$post.name",
-                            userId: 1
+                            $project: {
+                                _id: 1,
+                                username: 1,
+                                fullname: 1
+                            }
+                        },
+                        {
+                            $limit: 4
                         }
-                    },
-                    {
-                        $sort: { "post.time": -1 }
-                    }
-                ]).toArray((err, data) => {
-                    if (err) throw err
-                    response.data = data
-                    if(response.data && response.allUsers){
-                        resolve(response)
-                    }
-                })
-            }
+                    ]).toArray((err, data) => {
+                        if (err) throw err
+                        //storing you not followed users
+                        response.allUsers = data
+                    })
+
+
+                    db.get().collection(collections.USER_POST).aggregate([
+                    // get friends post and display here
+                        {
+                            $project:
+                            {
+                                _id: 0,
+                                userId: "$post.userId",
+                                "post.userPost": 1,
+                            }
+                        },
+                        {
+                            $unwind: "$post.userPost"
+                        },
+                        {
+                            $project:
+                            {
+                                post: "$post.userPost",
+                                name: "$post.name",
+                                userId: 1
+                            }
+                        },
+                        {
+                            $sort: { "post.time": -1 }
+                        }
+                    ]).toArray((err, data) => {
+                        if (err) throw err
+                        response.data = data
+                        if (response.data && response.allUsers) {
+                            resolve(response)
+                        }
+                    })
+                }
+            })
         })
     },
     foundUserData: (foundUser, userId) => {
@@ -244,16 +321,14 @@ module.exports = {
                 },
                 {
                     $project: {
-                        _id: 0,
                         "AllReadyFriend": {
-                            $in: [userId, "$followers"]
+                            $in: [ObjectId(userId), "$followers"]
                         }
                     }
                 }
             ]).next((err, data) => {
                 if (err) throw err
                 foundUserAllData.friend = data.AllReadyFriend
-                // console.log(data.AllReadyFriend);
             })
             db.get().collection(collections.USER_COLLECTION).aggregate([
                 {
@@ -305,16 +380,15 @@ module.exports = {
         })
     },
     addFriend: (foundUserId, userId) => {
-        let respons = {}
         return new Promise(async (resolve, reject) => {
             db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(userId) }, {
                 $push: {
-                    following: foundUserId
+                    following: ObjectId(foundUserId)
                 }
             })
             db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(foundUserId) }, {
                 $push: {
-                    followers: userId
+                    followers: ObjectId(userId)
                 }
             })
             db.get().collection(collections.USER_COLLECTION).aggregate([
@@ -328,9 +402,8 @@ module.exports = {
                 }
             ]).next((err, data) => {
                 if (err) throw err
-                respons.foundUserFolloversCound = data.followers.length
-                // console.log(respons.foundUserFolloversCound);
-                resolve(respons)
+                let cound = data.followers
+                resolve(cound)
             })
         })
     },
@@ -339,17 +412,17 @@ module.exports = {
         return new Promise((resolve, reject) => {
             db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(userId) }, {
                 $pull: {
-                    following: UnfollowUserId
+                    following: ObjectId(UnfollowUserId)
                 }
             })
             db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(UnfollowUserId) }, {
                 $pull: {
-                    followers: userId
+                    followers: ObjectId(userId)
                 }
             })
             db.get().collection(collections.USER_COLLECTION).aggregate([
                 {
-                    $match: { _id: ObjectId(userId) }
+                    $match: { _id: ObjectId(UnfollowUserId) }
                 },
                 {
                     $project: {
@@ -358,11 +431,165 @@ module.exports = {
                 }
             ]).next((err, data) => {
                 if (err) throw err
-                respons.foundUserFolloversCound = data.followers.length
-                // console.log(respons.foundUserFolloversCound);
-                resolve(respons)
+                let cound = data.followers
+                resolve(cound)
             })
         })
     },
-    // postIgtvPost:()
+    getFollowers: (userId) => {
+        return new Promise((resolve, reject) => {
+            db.get().collection(collections.USER_COLLECTION).aggregate([
+                {
+                    $match: {
+                        $and: [
+                            { _id: { $ne: ObjectId(userId) } },
+                            // the '$all' proparty gives you all the array matching document //
+                            { following: { $all: [ObjectId(userId)] } }
+                        ]
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        username: 1,
+                        "Im_following": { // my friends following me True || False
+                            $in: [ObjectId(userId), "$followers"]
+                        }
+                    }
+                },
+                {
+                    $sort: { "Im_following": -1 }
+                }
+            ]).toArray((err, data) => {
+                if (err) throw err
+                resolve(data)
+            })
+        })
+    },
+    removeFroundFromUserPanul: (removeId, userId) => {
+        return new Promise((resolve, reject) => {
+            db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(userId) }, {
+                $pull: {
+                    following: ObjectId(removeId)
+                }
+            })
+            db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(removeId) }, {
+                $pull: {
+                    followers: ObjectId(userId)
+                }
+            })
+            db.get().collection(collections.USER_COLLECTION).aggregate([
+                {
+                    $match: { _id: ObjectId(userId) }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        following: 1
+                    }
+                }
+            ]).next((err, data) => {
+                if (err) throw err
+                let cound = data.following
+                resolve(cound)
+            })
+        })
+    },
+    addFriendFromUserPanul: (addId, userId) => {
+        return new Promise((resolve, reject) => {
+            db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(userId) }, {
+                $push: {
+                    following: ObjectId(addId)
+                }
+            })
+            db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(addId) }, {
+                $push: {
+                    followers: ObjectId(userId)
+                }
+            })
+            db.get().collection(collections.USER_COLLECTION).aggregate([
+                {
+                    $match: { _id: ObjectId(userId) }
+                },
+                {
+                    $project: {
+                        following: 1
+                    }
+                }
+            ]).next((err, data) => {
+                if (err) throw err
+                let cound = data.following
+                resolve(cound)
+            })
+        })
+    },
+    getFollowing: (userId) => {
+        return new Promise((resolve, reject) => {
+            db.get().collection(collections.USER_COLLECTION).aggregate([
+                {
+                    $match: {
+                        $and: [
+                            { _id: { $ne: ObjectId(userId) } },
+                            { followers: { $all: [ ObjectId(userId) ]} }
+                        ]
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        username: 1,
+                        "Im_following": { // my friends following me True || False
+                            $in: [ObjectId(userId), "$followers"]
+                        }
+                    }
+                },
+                {
+                    $sort:{Im_following:1}
+                }
+            ]).toArray((err, data) => {
+                if (err) throw err
+                resolve(data)
+            })
+        })
+    },
+    removeFromFllovers: (deleteId, userId) => {
+        return new Promise((resolve, reject) => {
+            db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(userId) }, {
+                $pull: {
+                    followers: ObjectId(deleteId)
+                }
+            })
+            db.get().collection(collections.USER_COLLECTION).updateOne({ _id: ObjectId(deleteId) }, {
+                $pull: {
+                    following: ObjectId(userId)
+                }
+            })
+            db.get().collection(collections.USER_COLLECTION).aggregate([
+                {
+                    $match: {
+                        $and: [
+                            { _id: { $ne: ObjectId(userId) } },
+                            // the '$all' proparty gives you all the array matching document //
+                            { following: { $all: [ObjectId(userId)] } }
+                        ]
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        username: 1,
+                        "Im_following": { // my friends following me True || False
+                            $in: [ObjectId(userId), "$followers"]
+                        }
+                    }
+                },
+                {
+                    $sort: { "Im_following": -1 }
+                }
+            ]).toArray((err, data) => {
+                if (err) throw err
+                resolve(data)
+            })
+        })
+    }
 }

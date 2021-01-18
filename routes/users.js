@@ -7,7 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 var fs = require("fs")
 var path = require("path");
 const Db = require('mongodb/lib/db');
-const { json } = require('express');
+const { json, response } = require('express');
 
 /* GET home page. */
 // checking the user is logedin
@@ -23,7 +23,6 @@ let login = (req, res, next) => {
 router.get('/', login, function (req, res, next) {
   userOpretion.getFriendsPostToUserHomePage(req.session.user._id).then((response) => {
     res.render('users/users-home', { user: req.session.user, login: req.session.logedin, allPost: response.data, allUsers:response.allUsers });
-    console.log(response);
   })
 });
 router.get("/messeges", login, (req, res) => {
@@ -86,8 +85,6 @@ router.get("/userpanul", login, (req, res) => {
 })
 
 router.post("/user-post", (req, res) => {
-  // console.log(req.files.img);
-  // console.log(req.body.description);
   let post = {}
   let postingpath = `./postingUser/userPost`
   post.imgLocation = uuidv4() + "";
@@ -108,16 +105,9 @@ router.post("/user-post", (req, res) => {
   })
 })
 
-router.post("/user-ig-post", (req, res) => {
-  // userOpretion.postIgtvPost(req.body, req.session.user._id).then(() => {
-    console.log(req.files);
-    // res.redirect("/userpanul")
-  // })
-})
 
 router.post("/userPostCound", (req, res) => {
   userOpretion.uesrPostCound(req.session.user._id).then((respomse) => {
-    console.log(respomse.post);
     let posts = respomse.post
     if (posts) {
       let posts = respomse.post.userPost.length
@@ -127,12 +117,10 @@ router.post("/userPostCound", (req, res) => {
 })
 router.post("/post_delet", (req, res) => {
   let deletItem = req.body.postId
-  console.log(deletItem)
   userOpretion.deletUserPOst(deletItem, req.session.user._id).then((respomse) => {
     var path = `postingUser/userPost/post/${deletItem}.jpg`
     fs.unlink(path,(err) => {
       if(err) throw err
-      console.log(respomse);
       res.send(respomse).status(200)
     })
   })
@@ -154,7 +142,6 @@ router.get("/selectedUser",(req,res) => {
       allPost: respomse.postData,
       allPostCound: respomse.postData.length
     })
-    // console.log(respomse);
   })
 })
 router.get("/show-user/:id", login, (req, res) => {
@@ -168,16 +155,42 @@ router.get("/show-user/:id", login, (req, res) => {
 
 
 router.post("/addFriend", (req, res) => {
-  console.log(req.body.foundUser);
   userOpretion.addFriend(req.body.foundUser, req.session.user._id).then((respomse) => {
-    // console.log(respomse);
     res.send(respomse)
   })
 })
 router.post("/deleteUser",(req,res) => {
-  console.log(req.body);
   userOpretion.unfollow(req.body.userId,req.session.user._id).then((respomse) => {
     res.send(respomse)
+  })
+})
+router.get("/get-all-followers",(req,res) => {
+  userOpretion.getFollowers(req.session.user._id).then((response) => {
+    res.send(response);
+  })
+})
+
+
+router.post("/remove-fround-from-user-panul",(req,res) => {
+  userOpretion.removeFroundFromUserPanul(req.body.userId,req.session.user._id).then((respomse) => {
+    res.send(respomse)
+  })
+})
+
+router.post("/follow-friend-from-user-panul",(req,res) => {
+  userOpretion.addFriendFromUserPanul(req.body.foundUser,req.session.user._id).then((response) => {
+    res.send(response)
+  })
+})
+router.get("/get-following",(req,res) => {
+  userOpretion.getFollowing(req.session.user._id).then((response) => {
+    res.send(response)
+  })
+})
+
+router.post("/remove-follower",(req,res) => {
+  userOpretion.removeFromFllovers(req.body.userId,req.session.user._id).then((response) => {
+    res.send(response)
   })
 })
 
