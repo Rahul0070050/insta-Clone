@@ -1,0 +1,154 @@
+<div class="container">
+    <div class="row">
+        <!-- left column -->
+        <div class="col-md-3">
+            <div class="text-center mt-4">
+                <h1>Edit Profile</h1>
+                <img src="//placehold.it/100" class="avatar img-circle mt-4" alt="avatar">
+                <h6>Upload a different photo...</h6>
+                <input type="file" class="form-control">
+            </div>
+        </div>
+
+        <!-- edit form column -->
+        <div class="col-md-9 personal-info">
+            <h2 class="ml-3">Personal info</h2>
+
+            <form class="form-horizontal" role="form">
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Name:</label>
+                    <div class="col-lg-8">
+                        <input class="form-control" type="text" value="{{user.fullname}}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">User name:</label>
+                    <div class="col-lg-8">
+                        <input class="form-control" type="text" value="{{user.username}}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Email:</label>
+                    <div class="col-lg-8">
+                        <input class="form-control" type="text" value="{{user.MobilorEmail}}">
+                    </div>
+                </div>
+                {{!-- <div class="form-group">
+                    <label class="col-md-3 control-label">Password:</label>
+                    <div class="col-md-8">
+                        <input class="form-control" type="password" value="11111122333">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Confirm password:</label>
+                    <div class="col-md-8">
+                        <input class="form-control" type="password" value="11111122333">
+                    </div>
+                </div> --}}
+                <div id="password-group">
+                    <a style="color: blue;" class="ml-3" onclick="checkPassword()" type="button">Chainge Password</a>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label"></label>
+                    <div class="col-md-8">
+                        <input type="button" class="btn btn-primary" value="Save Changes">
+                        <span></span>
+                        <input type="reset" class="btn btn-default" value="Cancel">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<hr>
+
+
+
+
+<script>
+
+    checkPassword = () => {
+        document.getElementById("password-group").innerHTML = `
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Courrent password:</label>
+                    <div class="col-md-8">
+                        <input class="form-control" id="password" type="password" name="current_password">
+                    </div>
+                </div>
+                <a class=" text-light btn btn-primary ml-3" onclick="MatchPassword()" type="button">Check</a>
+    `
+    }
+
+
+    MatchPassword = () => {
+        let password = document.getElementById("password").value;
+        fetch("/match-password", {
+            method: 'post',
+            body: JSON.stringify({
+                password: password
+            }),
+            headers: {
+                'Content-Type': 'Application/json'
+            }
+        })
+            .then((res => res.json()))
+            .then(data => {
+                if (data) {
+                    document.getElementById("password-group").innerHTML = `
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">Password:</label>
+                            <div class="col-md-8">
+                                <input class="form-control" id="password" type="password" value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">Confirm password:</label>
+                            <div class="col-md-8">
+                                <input class="form-control" id="Conform-password" type="password" value="">
+                            </div>
+                        </div>
+                        <a class=" text-light btn btn-primary ml-3" onclick="setPassword()" type="button">Chaing</a>
+                        `
+                } else {
+                    document.getElementById("password-group").innerHTML = `
+                        <div class="form-group">
+                            <p class="text-danger ml-3">incorrect password Try again</p>
+                            <label class="col-md-3 control-label">Courrent password:</label>
+                            <div class="col-md-8">
+                                <input class="form-control" id="password" type="password" name="current_password">
+                            </div>
+                        </div>
+                        <a class=" text-light btn btn-primary ml-3" onclick="MatchPassword()" type="button">Check</a>`
+                }
+            })
+    }
+
+    
+    setPassword = () => {
+        let password = document.getElementById("password").value;
+        let ConformPassword = document.getElementById("Conform-password").value;
+        if(password == ConformPassword){
+            // Chaing password
+        } else {
+        let password = document.getElementById("password").value = "";
+        let ConformPassword = document.getElementById("Conform-password").value = "";
+            document.getElementById("password-group").innerHTML = `
+                        <div class="form-group">
+                            <p class="text-danger ml-3">passwords not match try again</p>
+                            <label class="col-md-3 control-label">Password:</label>
+                            <div class="col-md-8">
+                                <input class="form-control" id="password" type="password" value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">Confirm password:</label>
+                            <div class="col-md-8">
+                                <input class="form-control" id="Conform-password" type="password" value="">
+                            </div>
+                        </div>
+                        <a class=" text-light btn btn-primary ml-3" onclick="setPassword()" type="button">Chaing</a>
+                        `
+        }
+    }
+
+</script>
