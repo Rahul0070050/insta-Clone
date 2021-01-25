@@ -439,3 +439,9 @@
     color: black;
     margin-right: 8px !important;
 }
+
+/* ==============================find-user-section================================== */
+
+.find-user-sectiuon .user-friends-show{
+    margin-top: 6px !important;
+}

@@ -23,6 +23,7 @@ let login = (req, res, next) => {
 
 router.get('/', login, function(req, res, next) {
     userOpretion.getFriendsPostToUserHomePage(req.session.user._id).then((response) => {
+        console.log(response.data);
         res.render('users/users-home', { user: req.session.user, login: req.session.logedin, allPost: response.data, allUsers: response.allUsers });
     })
 });
@@ -40,9 +41,10 @@ router.post("/signup", async(req, res) => {
         res.redirect("/signup")
     } else {
         // creating new user accound
-        opretions.usserSignup(req.body).then((result) => {
+        opretions.userSignup(req.body).then((result) => {
             req.session.logedin = true
             req.session.user = req.body
+            req.session.user.profile = false
             res.redirect('/')
         })
     }
@@ -80,7 +82,8 @@ router.get("/userpanul", login, (req, res) => {
             followersCound: respomse.followers.length,
             followingCound: respomse.following.length,
             allPost: respomse.postData,
-            allPostCound: respomse.postData.length
+            allPostCound: respomse.postData.length,
+            profile: respomse.profile
         })
     })
 })
@@ -130,8 +133,10 @@ router.post("/post_delet", (req, res) => {
 
 router.get("/selectedUser", (req, res) => {
     userOpretion.foundUserData(req.session.finduserId, req.session.user._id).then((respomse) => {
+        console.log(req.session.user._id);
         res.render("users/findUser", {
             user: req.session.user,
+            id: req.session.user._id,
             login: req.session.logedin,
             userId: respomse.userId,
             fullname: respomse.fullname,
@@ -141,7 +146,8 @@ router.get("/selectedUser", (req, res) => {
             followersCound: respomse.followers.length,
             followingCound: respomse.following.length,
             allPost: respomse.postData,
-            allPostCound: respomse.postData.length
+            allPostCound: respomse.postData.length,
+            profile: respomse.profile
         })
     })
 })
@@ -167,7 +173,7 @@ router.post("/deleteUser", (req, res) => {
 })
 router.get("/get-all-followers", (req, res) => {
     userOpretion.getFollowers(req.session.user._id).then((response) => {
-        res.send(response);
+        res.send(response)
     })
 })
 
@@ -196,7 +202,8 @@ router.post("/remove-follower", (req, res) => {
 })
 router.get("/edit-user-profil", login, (req, res) => {
     userOpretion.editProfile(req.session.user._id).then((response) => {
-        res.render("users/editProfile", { user: response })
+        console.log(req.session.user);
+        res.render("users/editProfile", { user: response, user: req.session.user, login: req.session.logedin })
     })
 })
 router.post("/match-password", (req, res) => {
@@ -204,6 +211,47 @@ router.post("/match-password", (req, res) => {
         res.send(response);
     })
 })
+router.post("/chaing-password", (req, res) => {
+    userOpretion.chaingePassword(req.session.user._id, req.body.newPassword).then((response) => {
+        res.send(true)
+    });
+})
+router.post("/edit-user-data", (req, res) => {
+    req.session.user.fullname = req.body.fullnme
+    req.session.user.MobilorEmail = req.body.EmailorPhone
+    userOpretion.profiledit(req.session.user._id, req.body).then((response) => {
+        res.redirect("/userpanul")
+    })
+})
+
+router.post("/uplode-profile", (req, res) => {
+    userOpretion.uplodeProfile(req.session.user._id).then((response) => {
+        req.session.user.profile = true
+        let postingpath = `./postingUser/userProile`
+        var img = req.files.img
+        if (fs.existsSync(postingpath)) {
+            img.mv(`${postingpath}/${req.session.user._id}.jpg`)
+        } else {
+            fs.mkdir(postingpath + "/", { recursive: true }, (err) => {
+                if (err) throw err
+                img.mv(`${postingpath}/${req.session.user._id}.jpg`)
+            })
+        }
+        res.send(response)
+    })
+})
+router.post("/found-user-followers",(req,res) => {
+    userOpretion.getfoundUserFollowers(req.session.user._id,req.body.userId).then((response) => {
+        res.send(response)
+    })
+})
+router.post("/found-user-following",(req,res) => {
+    userOpretion.getfoundUserFollowing(req.session.user._id,req.body.foundUserId).then((response) => {
+        console.log(response);
+        res.send(response)
+    })
+})
+
 
 
 
