@@ -247,8 +247,13 @@ router.post("/found-user-followers",(req,res) => {
 })
 router.post("/found-user-following",(req,res) => {
     userOpretion.getfoundUserFollowing(req.session.user._id,req.body.foundUserId).then((response) => {
-        console.log(response);
+        // console.log(response);
         res.send(response)
+    })
+})
+router.post("/getuser",(req,res) => {
+    userOpretion.getSearchResult(req.body.search,req.session.user._id).then((response) => {
+        res.json(response)
     })
 })
 

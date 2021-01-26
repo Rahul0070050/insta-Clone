@@ -2,6 +2,7 @@ const collections = require('../config/collections');
 var db = require('../config/connection');
 var bcrupt = require('bcrypt');
 var ObjectId = require('mongodb').ObjectID;
+var assert = require("assert")
 const { reject } = require('bcrypt/promises');
 const { resolve } = require('path');
 const { response } = require('express');
@@ -727,7 +728,7 @@ module.exports = {
                     }
                 },
                 {
-                    $sort:{following_me:1}
+                    $sort: { following_me: 1 }
                 }
             ]).toArray((err, data) => {
                 if (err) throw err
@@ -754,12 +755,45 @@ module.exports = {
                     }
                 },
                 {
-                    $sort:{following_me:1}
+                    $sort: { following_me: 1 }
                 }
             ]).toArray((err, data) => {
                 if (err) throw err
                 resolve(data)
             })
         })
+    },
+    getSearchResult: (search, userId) => {
+        return new Promise((resolve, reject) => {
+            db.get().collection(collections.USER_COLLECTION).createIndex({ username: "text", fullname: "text" })
+            db.get().collection(collections.USER_COLLECTION).aggregate([
+                {
+                    $match: {
+                        _id: { $ne: ObjectId(userId) }
+                    }
+                },
+                {
+                    $match: {
+                        username: { $regex: search }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        username: 1,
+                        profile: 1,
+                        "following_me": {
+                            $in: [ObjectId(userId), "$followers"]
+                        }
+                    }
+                }
+            ]).toArray((err, data) => {
+                assert.equal(err, null)
+                resolve(data);
+            })
+        })
+            .catch((err) => {
+                console.log(err);
+            })
     }
 }
