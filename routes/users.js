@@ -23,7 +23,6 @@ let login = (req, res, next) => {
 
 router.get('/', login, function(req, res, next) {
     userOpretion.getFriendsPostToUserHomePage(req.session.user._id).then((response) => {
-        console.log(response.data);
         res.render('users/users-home', { user: req.session.user, login: req.session.logedin, allPost: response.data, allUsers: response.allUsers });
     })
 });
@@ -37,6 +36,7 @@ router.get("/signup", (req, res) => {
 
 
 router.post("/signup", async(req, res) => {
+    // Check the userName allready use
     if (req.body.MobilorEmail == '' || req.body.fullname == '' || req.body.username == '' || req.body.password == '') {
         res.redirect("/signup")
     } else {
@@ -105,7 +105,6 @@ router.post("/user-post", (req, res) => {
     }
     req.body.postImg = post.imgLocation
     userOpretion.userPostUploading(req.body, req.session.user._id, req.session.user.username).then((response) => {
-        // console.log(response);
         res.send(response).status(200)
     })
 })
@@ -133,7 +132,6 @@ router.post("/post_delet", (req, res) => {
 
 router.get("/selectedUser", (req, res) => {
     userOpretion.foundUserData(req.session.finduserId, req.session.user._id).then((respomse) => {
-        console.log(req.session.user._id);
         res.render("users/findUser", {
             user: req.session.user,
             id: req.session.user._id,
@@ -202,7 +200,6 @@ router.post("/remove-follower", (req, res) => {
 })
 router.get("/edit-user-profil", login, (req, res) => {
     userOpretion.editProfile(req.session.user._id).then((response) => {
-        console.log(req.session.user);
         res.render("users/editProfile", { user: response, user: req.session.user, login: req.session.logedin })
     })
 })
@@ -247,7 +244,6 @@ router.post("/found-user-followers",(req,res) => {
 })
 router.post("/found-user-following",(req,res) => {
     userOpretion.getfoundUserFollowing(req.session.user._id,req.body.foundUserId).then((response) => {
-        // console.log(response);
         res.send(response)
     })
 })
@@ -256,10 +252,32 @@ router.post("/getuser",(req,res) => {
         res.json(response)
     })
 })
-
-
-
-
+router.post("/addLike",(req,res) => {
+    userOpretion.addImgLike(req.body.img,req.body.userId,req.body.Id).then((response) => {
+        res.json(response)
+    })
+})
+router.post("/removeLike",(req,res) => {
+    userOpretion.removeLike(req.body.img,req.body.userId,req.body.Id).then((response) => {
+        res.json(response)
+    })
+})
+router.post("/add_comment",(req,res) => {
+    userOpretion.addComment(req.body.img,req.body.userId,req.session.user._id,req.body.comment,req.session.user.username).then((response) => {
+        res.json(response)
+    })
+})
+router.post("/get_comments",(req,res) => {
+    userOpretion.getComments(req.body.img,req.body.userId).then((response) => {
+        res.json(response.comments)
+    })
+})
+router.post("/hide_comments",(req,res) => {
+    userOpretion.hideComments(req.body.img,req.body.userId).then((response) => {
+        console.log(response);
+        res.json(response)
+    })
+})
 
 
 module.exports = router;

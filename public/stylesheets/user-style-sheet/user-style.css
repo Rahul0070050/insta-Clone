@@ -346,8 +346,8 @@
 .hiden{
     display: none;
 }
-.red{
-    color: #dc3171;
+#red{
+    color: #e42828 !important;
 }
 .black{
     color: black;
