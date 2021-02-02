@@ -451,7 +451,7 @@
 }
 .suggestion{
     position: absolute;
-    right: 35rem;
+    right: 42rem;
     top: 4rem;
     height: 300px;
     width: 300px;
@@ -460,16 +460,6 @@
 }
 .suggestion::-webkit-scrollbar{
     display: none;
-}
-.suggestion::after{
-    content: '';
-    position: absolute;
-    height: 50px;
-    width: 50px;
-    left: 40%;
-    top: -0.5rem;
-    background-color: #a5a5a5;
-    transform: rotate(50deg);
 }
 .suggestion .user{
     display: flex;

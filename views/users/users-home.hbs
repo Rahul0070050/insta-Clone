@@ -61,19 +61,23 @@
                             <h6><span class="text-muted">{{this.post.discription}}</span></h6>
                         </div>
                         <div id="{{this.post.img}}{{this.post.img}}{{this.post.img}}">
-                            {{#each comments}}
-                            <h6>{{this.username}} <span class="text-muted">{{this.comment}}</span></h6>
-                            {{/each}}
+                            <h6>{{this.comments.username}} <span class="text-muted">{{this.comments.comment}}</span>
+                                {{#if this.editComment}}
+                                <small><a style="color: #007bff; cursor: pointer;" onclick="editComment('{{this.userId}}','{{this.comments.userId}}','{{this.comments.commentId}}','{{this.post.img}}')">edit</a></small>
+                                {{/if}}
+                            </h6>
+                            {{#if this.commentsCound}}
                             <a style="color: #007bff; cursor: pointer;"
-                                onclick="getComments('{{this.post.img}}','{{this.userId}}')">more...</a>
+                                onclick="getComments('{{this.post.img}}','{{this.userId}}','{{../user._id}}')">more...</a>
+                            {{/if}}
                         </div>
                         <hr>
-                        <div class="comments-input-feeld">
+                        <div class="comments-input-feeld" id="{{this.post.img}}{{this.post.img}}{{this.post.img}}{{this.post.img}}{{this.post.img}}{{this.post.img}}">
                             <input type="text" name="comment"
                                 id="{{this.post.img}}{{this.post.img}}{{this.post.img}}{{this.post.img}}"
                                 placeholder="Add a comment">
                             <a style="color: #007bff; cursor: pointer;"
-                                onclick="postComment('{{this.post.img}}','{{this.userId}}')">post</a>
+                                onclick="postComment('{{this.post.img}}','{{this.userId}}','{{../user._id}}')">post</a>
                         </div>
                     </div>
                 </div>
@@ -214,29 +218,58 @@
     }
 
 
-    postComment = (imgId, userId) => {
-        let data = new FormData()
+    postComment = (imgId, userId, _id) => {
         let comment = document.getElementById(imgId + imgId + imgId + imgId).value;
-        data.append('img', imgId);
-        data.append('userId', userId);
-        data.append("comment", comment)
+        if (comment == "") {
+            alert("type sumthing")
+        } else {
+            let data = new FormData()
+            data.append('img', imgId);
+            data.append('userId', userId);
+            data.append("comment", comment)
 
-        fetch("/add_comment", {
-            method: 'post',
-            body: data
-        })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById(imgId + imgId + imgId + imgId).value = ""
-                document.getElementById(imgId + imgId + imgId).innerHTML = `
-                    <h6>${data.comment.username} <span class="text-muted">${data.comment.comment}</span></h6>
-                    <a style="color: #007bff; cursor: pointer;" onclick="getComments('${imgId}','${userId}')">more...</a>
-                `
+            fetch("/add_comment", {
+                method: 'post',
+                body: data
             })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data)
+                    for (var i = 0; i < data.length; i++) {
+                        if (data.length < 1) {
+                            document.getElementById(imgId + imgId + imgId + imgId).value = ""
+                            if (_id == data[i].comment.userId) {
+                                document.getElementById(imgId + imgId + imgId).innerHTML = `
+                            <h6>${data[i].comment.username} <span class="text-muted">${data[i].comment.comment}</span><small><a style="color: #007bff; cursor: pointer;"> edit</a></small></h6>
+                            `
+                            } else {
+                                document.getElementById(imgId + imgId + imgId).innerHTML = `
+                            <h6>${data[i].comment.username} <span class="text-muted">${data[i].comment.comment}</span></h6>
+                            `
+                            }
+                        } else {
+                            document.getElementById(imgId + imgId + imgId + imgId).value = ""
+                            if (_id == data[0].comment.userId) {
+                                document.getElementById(imgId + imgId + imgId).innerHTML = `
+                                    <h6>${data[i].comment.username} <span class="text-muted">${data[i].comment.comment}</span><small><a style="color: #007bff; cursor: pointer;"> edit</a></small></h6>
+                                    <a style="color: #007bff; cursor: pointer;" onclick="getComments('${imgId}','${userId}','${_id}')">more...</a>
+                                    `
+                            } else {
+                                document.getElementById(imgId + imgId + imgId).innerHTML = `
+                                    <h6>${data[i].comment.username} <span class="text-muted">${data[i].comment.comment}</span></h6>
+                                    <a style="color: #007bff; cursor: pointer;" onclick="getComments('${imgId}','${userId}','${_id}')">more...</a>
+                                    `
+                            }
+                            break;
+                        }
+                    }
+                })
+
+        }
     }
 
 
-    getComments = (imgId, userId) => {
+    getComments = (imgId, userId, _id) => {
         let data = new FormData()
         data.append('img', imgId);
         data.append('userId', userId);
@@ -249,20 +282,27 @@
             .then(data => {
                 let comment = ""
                 for (var i = 0; i < data.length; i++) {
-                    comment += `
+                    if (_id == data[i].userId) {
+                        comment += `
+                        <h6>${data[i].username} <span class="text-muted">${data[i].comment}</span><small><a style="color: #007bff; cursor: pointer;"> edit</a></small></h6>
+                        `
+                    } else {
+                        comment += `
                         <h6>${data[i].username} <span class="text-muted">${data[i].comment}</span></h6>
-                    `
+                        `
+                    }
+
                 }
                 document.getElementById(imgId + imgId + imgId).innerHTML =
                     `
                     ${comment}
-                    <a style="color: #007bff; cursor: pointer;" onclick="hideComment('${imgId}','${userId}')">hide</a>
+                    <a style="color: #007bff; cursor: pointer;" onclick="hideComment('${imgId}','${userId}','${_id}')">hide</a>
                 `
             })
     }
 
 
-    hideComment = (imgId, userId) => {
+    hideComment = (imgId, userId, _id) => {
         let data = new FormData()
         data.append('img', imgId);
         data.append('userId', userId);
@@ -275,17 +315,66 @@
             .then(data => {
                 console.log(data)
                 let comment = ""
-                for (var i = 0; i < 1 ; i++) {
-                    comment += `
+                for (var i = 0; i < 1; i++) {
+                    if (_id == data[i].userId) {
+                        comment += `
+                        <h6>${data[0].username} <span class="text-muted">${data[0].comment}</span><small><a style="color: #007bff; cursor: pointer;"> edit</a></small></h6>
+                        `
+                    } else {
+                        comment += `
                         <h6>${data[0].username} <span class="text-muted">${data[0].comment}</span></h6>
-                    `
+                        `
+                    }
                 }
                 document.getElementById(imgId + imgId + imgId).innerHTML =
                     `
                     ${comment}
-                    <a style="color: #007bff; cursor: pointer;" onclick="getComments('${imgId}','${userId}')">more...</a>
+                    <a style="color: #007bff; cursor: pointer;" onclick="getComments('${imgId}','${userId}','${_id}')">more...</a>
                     `
             })
+    }
+
+
+
+
+    editComment = (postedUserId,commentedUserId,commentId,img) => {
+        let data = new FormData()
+        data.append('postUserId',postedUserId)
+        data.append('commentUserId',commentedUserId)
+        data.append('commentId',commentId)
+        data.append('img',img)
+        fetch("/editComment",{
+            method: 'post',
+            body: data
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById(img+img+img+img+img+img).innerHTML = `
+                <input type="text" name="comment"
+                                id="${commentId}"
+                                placeholder="Add a comment" value="${data.comment.comment}">
+                            <a style="color: #007bff; cursor: pointer;"
+                                onclick="saveComment('${postedUserId}','${commentId}','${img}')">save</a>
+            `
+        })
+    }
+
+
+    saveComment = (postedUserId,commentId,img) => {
+        let comment = document.getElementById(commentId).value;
+        let data = new FormData()
+        data.append('postedUserId', postedUserId)
+        data.append('commentId', commentId)
+        data.append('img', img)
+        data.append('comment', comment)
+        fetch("/saveComment",{
+            method: 'post',
+            body: data
+        })
+        .then(res => res.json())
+        .then(data => {
+            
+        })
     }
 
 

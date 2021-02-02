@@ -3,7 +3,7 @@ var db = require('../config/connection');
 var bcrupt = require('bcrypt');
 var ObjectId = require('mongodb').ObjectID;
 var assert = require("assert")
-const { reject, use } = require('bcrypt/promises');
+const { reject, use, promise } = require('bcrypt/promises');
 const { resolve } = require('path');
 const { response } = require('express');
 
@@ -281,14 +281,31 @@ module.exports = {
                                 userId: 1,
                                 username: 1,
                                 post: 1,
+                                "comments": {
+                                    $arrayElemAt: ["$post.comments", 0]
+                                },
+                            }
+                        },
+                        {
+                            $project: {
+                                profile: 1,
+                                userId: 1,
+                                username: 1,
+                                post: 1,
                                 "likesCound": {
                                     $size: "$post.likes"
+                                },
+                                "commentsCound": {
+                                    $gt: [{ $size: "$post.comments" }, 1]
                                 },
                                 "liked": {
                                     $in: [ObjectId(userId), "$post.likes"]
                                 },
-                                comments: {
-                                    $slice:[ "$post.comments", 1 ]
+                                "comments": {
+                                    $arrayElemAt: ["$post.comments", 0]
+                                },
+                                "editComment": {
+                                    $eq: ["$comments.userId", ObjectId(userId)]
                                 }
                             }
                         }
@@ -328,6 +345,14 @@ module.exports = {
                     db.get().collection(collections.USER_COLLECTION).aggregate([
                         // else case
                         {
+                            $match: {
+                                $or: [
+                                    { followers: { $all: [ObjectId(userId)] } },
+                                    { _id: ObjectId(userId) }
+                                ]
+                            }
+                        },
+                        {
                             $project: {
                                 _id: 1,
                                 username: 1,
@@ -365,20 +390,38 @@ module.exports = {
                                 userId: 1,
                                 username: 1,
                                 post: 1,
+                                "comments": {
+                                    $arrayElemAt: ["$post.comments", 0]
+                                },
+                            }
+                        },
+                        {
+                            $project: {
+                                profile: 1,
+                                userId: 1,
+                                username: 1,
+                                post: 1,
                                 "likesCound": {
                                     $size: "$post.likes"
                                 },
+                                "commentsCound": {
+                                    $gt: [{ $size: "$post.comments" }, 1]
+                                },
                                 "liked": {
-                                    $in: [ObjectId(userId), "$likes"]
+                                    $in: [ObjectId(userId), "$post.likes"]
+                                },
+                                "comments": {
+                                    $arrayElemAt: ["$post.comments", 0]
+                                },
+                                "editComment": {
+                                    $eq: ["$comments.userId", ObjectId(userId)]
                                 }
                             }
                         }
-                    ]).each((err, data) => {
+                    ]).toArray((err, data) => {
                         if (err) throw err
                         response.data = data
-                        if (response.data && response.allUsers) {
-                            resolve(response);
-                        }
+                        resolve(response);
                     })
                 }
             })
@@ -874,12 +917,13 @@ module.exports = {
             })
         })
     },
-    addComment: (img, postedUser, userId, comment, username) => {
+    addComment: (img, postedUser, userId, comment, username, commentId) => {
         return new Promise((resolve, reject) => {
             let commentSec = {
-                userId: userId,
+                userId: ObjectId(userId),
                 comment: comment,
-                username: username
+                username: username,
+                commentId: commentId
             }
             db.get().collection(collections.USER_POST).updateOne({ "post.userId": ObjectId(postedUser), "post.userPost.img": img }, {
                 $push: {
@@ -913,19 +957,16 @@ module.exports = {
                     },
                     {
                         $unwind: "$comment"
-                    },
-                    {
-                        $limit: 1
                     }
-                ]).next((err, data) => {
+                ]).toArray((err, data) => {
                     if (err) throw err
                     resolve(data)
                 })
             })
         })
     },
-    getComments: (img,postedUser) => {
-        return new Promise((resolve,reject) => {
+    getComments: (img, postedUser) => {
+        return new Promise((resolve, reject) => {
             db.get().collection(collections.USER_POST).aggregate([
                 {
                     $match: {
@@ -951,8 +992,8 @@ module.exports = {
             })
         })
     },
-    hideComments:(img,postedUser) => {
-        return new Promise((resolve,reject) => {
+    hideComments: (img, postedUser) => {
+        return new Promise((resolve, reject) => {
             db.get().collection(collections.USER_POST).aggregate([
                 {
                     $match: {
@@ -976,6 +1017,51 @@ module.exports = {
                 if (err) throw err
                 resolve(data[0].comments)
             })
+        })
+    },
+    editComment: (postUserId, commentId, img) => {
+        return new Promise((resolve, reject) => {
+            db.get().collection(collections.USER_POST).aggregate([
+                {
+                    $match: {
+                        "post.userId": ObjectId(postUserId)
+                    }
+                },
+                {
+                    $project: {
+                        post: "$post.userPost"
+                    }
+                },
+                {
+                    $unwind: "$post"
+                },
+                {
+                    $match: {
+                        "post.img": img
+                    }
+                },
+                {
+                    $unwind: "$post.comments"
+                },
+                {
+                    $project: {
+                        comment: "$post.comments"
+                    }
+                },
+                {
+                    $match: {
+                        "comment.commentId": commentId
+                    }
+                }
+            ]).each((err, data) => {
+                if (err) throw err
+                resolve(data)
+            })
+        })
+    },
+    saveComment:(userpostId,commentId,img,comment) => { //   =================================   \\
+        return new Promise((resolve,reject) => {
+            
         })
     }
 }

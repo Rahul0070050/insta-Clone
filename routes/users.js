@@ -263,7 +263,8 @@ router.post("/removeLike",(req,res) => {
     })
 })
 router.post("/add_comment",(req,res) => {
-    userOpretion.addComment(req.body.img,req.body.userId,req.session.user._id,req.body.comment,req.session.user.username).then((response) => {
+    let commentId = uuidv4()
+    userOpretion.addComment(req.body.img,req.body.userId,req.session.user._id,req.body.comment,req.session.user.username,commentId).then((response) => {
         res.json(response)
     })
 })
@@ -274,7 +275,16 @@ router.post("/get_comments",(req,res) => {
 })
 router.post("/hide_comments",(req,res) => {
     userOpretion.hideComments(req.body.img,req.body.userId).then((response) => {
-        console.log(response);
+        res.json(response)
+    })
+})
+router.post("/editComment",(req,res) => {
+    userOpretion.editComment(req.body.postUserId,req.body.commentId,req.body.img).then((response) => {
+        res.json(response)
+    })
+})
+router.post("/saveComment",(req,res) => {
+    userOpretion.saveComment(req.body.postedUserId,req.body.commentId,req.body.img,req.body.comment).then((response) => {
         res.json(response)
     })
 })

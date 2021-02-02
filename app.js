@@ -6,6 +6,7 @@ var logger = require('morgan');
 var hbs = require("express-handlebars")
 var db = require("./config/connection")
 const session = require('express-session');
+const hbss = require("hbs")
 
 var adminRouter = require('./routes/admin');
 var usersRouter = require('./routes/users');
@@ -27,13 +28,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'postingUser')));
 // app.use('/css',express.static(__dirname +'/css'));
 db.connect((err) => {
-        if (err) {
-            console.log("have an err" + err);
-        } else {
-            console.log("connection success");
-        }
-    })
-    // Note that this option available for versions 1.0.0 and newer. 
+    if (err) {
+        console.log("have an err" + err);
+    } else {
+        console.log("connection success");
+    }
+})
+// Note that this option available for versions 1.0.0 and newer. 
 
 app.use(fileUpload())
 
@@ -42,12 +43,12 @@ app.use('/', usersRouter);
 app.use('/users', adminRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
